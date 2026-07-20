@@ -86,10 +86,8 @@ async def main():
         result = await t3(num1, num2)
         print(f"Result 2: {result}")
 
-        t1 = mqtt_receiving
-        num1 = t1(
-            mqtt_receiving
-        )  # t1 will automatically be called when receiving an MQTT event.
+        num1 = t1(mqtt_receiving)  
+        # t1 will automatically be called when receiving an MQTT event.
         num2 = t2()
 
         result = await t3(
