@@ -4,9 +4,12 @@ import asyncio
 from collections import defaultdict
 import time
 
-from rose.al.experiment import ExperimentLearner, ExperimentDataType, ExperimentRuntime
+from rose.al.experiment import ExperimentLearner, ExperimentDataType, ExperimentRuntime, ExperimentRuntimeClient
 from rose.al.active_learner import SequentialActiveLearner
 from radical.asyncflow import WorkflowEngine
+from radical.asyncflow.streaming import (
+    StreamBackend,
+)
 
 
 class MyInputData_T(ExperimentDataType):
@@ -138,12 +141,18 @@ async def rose_test():
     # Now, the experiment flow .... putting it all together
     #########################################################
 
-    runtime = ExperimentRuntime()
+    sb = StreamBackend()
+    runtime = ExperimentRuntime(asyncflow, stream_backend=sb)
 
-    @runtime.sensor_task(tx_topic="my_sensor")
+    # Compare this to the asyncflow example.
+    # This is one approach: use strings as ID's
+    @runtime.sensor_task(tx_topic="/my_sensor")
     def read_from_sensor():
+        sb = StreamBackend()
+        runtime_client = ExperimentRuntimeClient(sb)
         while True:
-            asyncflow.dispatch("my_sensor", out)
+            out = # ... something here.
+            runtime_client.dispatch("/my_sensor",out)
             time.sleep(1)
 
     @runtime.utility_task
