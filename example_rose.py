@@ -144,8 +144,6 @@ async def rose_test():
     sb = StreamBackend()
     runtime = ExperimentRuntime(asyncflow, stream_backend=sb)
 
-    # Compare this to the asyncflow example.
-    # This is one approach: use strings as ID's
     @runtime.sensor_task(tx_topic="/my_sensor")
     def read_from_sensor():
         sb = StreamBackend()
