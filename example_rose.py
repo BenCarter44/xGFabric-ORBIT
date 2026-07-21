@@ -94,32 +94,40 @@ async def rose_test():
         # - evaluate current models
         # - determine what models / items it should refine.
 
+
         while True:
             await signal.wait()
 
+
             models = my_experiment.get_models()
+
 
             scores = defaultdict(float)
             for model in models:
                 scores[model] = model.evaluate()
-            
+           
             sorted_d = dict(sorted(scores.items(), key=lambda score: score[1]))
 
-            # tell the inference task of the experiment to use the best one
-            my_experiment.inference_model = sorted_d[0]
+
+            # tell the inference task of the experiment to use the best oner
+            async def inference_selector():
+                  return sorted_d[0]
+            my_experiment.update_inference_selector(inference_selector)
 
             # pick the worst model and refine it!
             await my_experiment.launch(active_learn, sorted_d[-1])
             # or async...
-            new_model = await asyncio.create_task(my_experiment.launch(active_learn, sorted_d[-1]))
+            new_model = await asyncio.create_task(my_experiment.launch(active_learn,              sorted_d[-1]))
+
 
             my_experiment.publish_model(new_model)
-        
+       
+
 
     #####################################
-    # On inference, 
+    # On inference,
     # the runtime will automatically use
-    #       runtime.inference_model.inference_task()
+    #       runtime.experiment.inference_selector().inference_task()
     #
     # runtime.inference_model is of type model candidate.
     #
